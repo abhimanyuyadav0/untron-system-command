@@ -517,9 +517,14 @@ class UltronLive:
         loop = asyncio.get_event_loop()
 
         def callback(indata, frames, time_info, status):
-            with self._speaking_lock:
-                ultron_speaking = self._is_speaking
-            if not ultron_speaking and not self.ui.muted and not self._phone_active:
+            # Stream continuously, even while ULTRON is speaking — this is what lets
+            # Gemini Live's own server-side VAD detect the user talking over it and
+            # emit server_content.interrupted (handled in _receive_audio), instead of
+            # silently dropping the user's barge-in speech before it ever reaches the
+            # model. Note: without acoustic echo cancellation, ULTRON's own speaker
+            # output can bleed into the mic on setups without a headset — if that
+            # causes false self-interruptions, re-add a `not ultron_speaking` gate.
+            if not self.ui.muted and not self._phone_active:
                 data = indata.tobytes()
                 loop.call_soon_threadsafe(
                     self._enqueue_mic_audio,
@@ -564,6 +569,14 @@ class UltronLive:
 
                     if response.server_content:
                         sc = response.server_content
+
+                        if sc.interrupted:
+                            # Gemini detected the user talking over ULTRON (server-side
+                            # VAD, now reachable since the mic streams continuously).
+                            # Stop and empty the playback queue immediately instead of
+                            # letting the old response keep playing out / being treated
+                            # as context for the new one.
+                            self.interrupt()
 
                         if sc.output_transcription and sc.output_transcription.text:
                             txt = _clean_transcript(sc.output_transcription.text)
