@@ -36,16 +36,16 @@
 ### Option 2: Manual Setup
 
 ```bash
-git clone https://github.com/morphhyyy-cpu/ULTRON.git
-cd ULTRON
+git clone https://github.com/abhimanyuyadav0/untron-system-command.git
+cd untron-system-command
 python ULTRON_SETUP.py
 ```
 
 ### Option 3: Step-by-Step Manual
 
 ```bash
-git clone https://github.com/morphhyyy-cpu/ULTRON.git
-cd ULTRON
+git clone https://github.com/abhimanyuyadav0/untron-system-command.git
+cd untron-system-command
 pip install -r requirements.txt
 python -m playwright install chromium
 python main.py
@@ -132,6 +132,10 @@ All dependencies are listed in `requirements.txt` and installed automatically by
 - And more (see requirements.txt)
 
 ---
+
+## Author
+
+Created and developed by **Abhimanyu Yadav**.
 
 ## License
 
